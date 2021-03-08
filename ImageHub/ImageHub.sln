@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30711.63
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageHub", "ImageHub\ImageHub.csproj", "{2797000E-5E2D-46E4-8171-40E0B0CA5AD1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2797000E-5E2D-46E4-8171-40E0B0CA5AD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2797000E-5E2D-46E4-8171-40E0B0CA5AD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2797000E-5E2D-46E4-8171-40E0B0CA5AD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2797000E-5E2D-46E4-8171-40E0B0CA5AD1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5D9B55A3-4038-4B33-AA75-98C043BF1719}
+	EndGlobalSection
+EndGlobal
