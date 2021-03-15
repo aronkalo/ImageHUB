@@ -17,5 +17,6 @@ namespace ImageHub.Data
             IOptions<OperationalStoreOptions> operationalStoreOptions) : base(options, operationalStoreOptions)
         {
         }
+        public DbSet<Media> Medias { get; set; }
     }
 }
