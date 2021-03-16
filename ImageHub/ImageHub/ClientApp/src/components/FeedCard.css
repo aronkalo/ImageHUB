@@ -69,7 +69,7 @@ b {
 }
 
 .like {
-    padding: 0px 40px 6px 0px;
+    padding: 0px 42px 6px 0px;
     width: 24px;
     float: left;
 }
@@ -97,4 +97,9 @@ b {
 
 .user-comment {
     padding-left: 6px;
+}
+
+.space-between-posts {
+    padding-top: 20px;
+    padding-bottom: 20px;
 }

@@ -19,21 +19,23 @@ export class FetchData extends Component {
     }
 
     static rendeMediaTable(forecasts) {
-        return (forecasts.map(forecast =>
-                    {
-                        this.renderCard(forecast)
-                    })
+        return (
+            <div>
+                {forecasts.map(forecast => this.renderCard(forecast))}
+            </div>
         );
     }
 
     static renderCard(forecast) {
         return (
-            <div className="card">
-                { this.renderUsername()}
-                { this.renderImage(forecast)}
-                { this.renderStatus(forecast)}
-                { this.renderComment()}
+            <><div className="card">
+                {this.renderUsername()}
+                {this.renderImage(forecast)}
+                {this.renderStatus(forecast)}
+                {this.renderComment()}
             </div>
+                <div className="space-between-posts">
+                </div></>
         );
     }
 
@@ -47,7 +49,7 @@ export class FetchData extends Component {
     }
     static renderImage(forecast) {
         return (
-            <img className="postImage" src={"https://localhost:5001/services/files/" + forecast.identifier}></img>
+            <img className="postImage" src={"https://localhost:44335/services/files/" + forecast.identifier}></img>
         )
     }
 
@@ -67,17 +69,17 @@ export class FetchData extends Component {
                     </div>
                 </div>
 
-                <div><b>Kispista</b> Ez egy nagyon szép kép, én csináltam </div>
+                <div><b>Kispista</b> { forecast.text } </div>
 
-                <div class="comments">
-                    <span>Ennyi DB komment van</span>
+                <div className="comments">
+                    <span>Comments count: x</span>
                 </div>
 
                 <span>
-                    <a class="user-comment-name" href="referencia a másik csávó instájához">PéterInsta</a>
+                    <a className="user-comment-name" href="referencia az instára">PéterInsta</a>
                 </span>
-                <span class="user-comment">
-                    {forecast.text }
+                <span className="user-comment">
+                    Very good picture!
                 </span>
             </div>
         )
@@ -87,7 +89,7 @@ export class FetchData extends Component {
         return (
             <div className="commentInput">
                 <textarea placeholder="Add a comment…"></textarea>
-                <button class="commentSendButton">Küldés</button>
+                <button className="commentSendButton">Send</button>
             </div>
         )
     }
