@@ -17,8 +17,8 @@ export default class App extends Component {
     return (
       <Layout>
         <Route exact path='/' component={Home} />
-        <AuthorizeRoute path='/feed' component={MediaUploader} />
-        <AuthorizeRoute path='/upload' component={FetchData} />
+        <AuthorizeRoute path='/upload' component={MediaUploader} />
+        <AuthorizeRoute path='/feed' component={FetchData} />
         <Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes} />
       </Layout>
     );
