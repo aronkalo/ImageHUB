@@ -46,7 +46,7 @@ namespace ImageHub.Controllers
             if (user is default(ApplicationUser))
                 return Problem();
 
-            var media = new Media(Guid.NewGuid().ToString(), buffer, text, user.Id, file.ContentType);
+            var media = new Media(Guid.NewGuid().ToString(), buffer, text, user.Id, file.ContentType, 0);
             _context.Medias.Add(media);
             await _context.SaveChangesAsync();
             return Ok();
