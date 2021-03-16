@@ -28,25 +28,22 @@ namespace ImageHub.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadMedia([FromForm]IFormFile file, [FromForm]string text)
+        public async Task<IActionResult> UploadMedia([FromForm]UploadFileDto uploadFile)
         {
-            if (file is null || file.Length < 5)
+            if (uploadFile.file is null || uploadFile.file.Length < 5)
                 return Problem();
 
-            using var stream = file.OpenReadStream();
+            using var stream = uploadFile.file.OpenReadStream();
             byte[] buffer = new byte[stream.Length];
             int pos = await stream.ReadAsync(buffer, 0, (int)stream.Length);
 
-            if (pos is not 0)
-                return Problem();
+            //var userName = User.Identity.Name;
+            //var user = _context.Users.FirstOrDefault(x => x.UserName == userName);
 
-            var userName = User.Identity.Name;
-            var user = _context.Users.FirstOrDefault(x => x.UserName == userName);
+            //if (user is default(ApplicationUser))
+            //    return Problem();
 
-            if (user is default(ApplicationUser))
-                return Problem();
-
-            var media = new Media(Guid.NewGuid().ToString(), buffer, text, user.Id, file.ContentType, 0);
+            var media = new Media(Guid.NewGuid().ToString(), buffer, uploadFile.text, null, uploadFile.file.ContentType, 0);
             _context.Medias.Add(media);
             await _context.SaveChangesAsync();
             return Ok();
