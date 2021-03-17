@@ -34,12 +34,12 @@ export class MediaUploader extends Component {
 
     render() {
         return (
-                <form id='form' method='POST' onSubmit={async e => await this.submit(e)}>
+                <form id='form'>
                     <label>Media</label><br></br>
                     <input name="file" type="file" onChange={e => this.setState({ file: e.target.files[0] })} /><br></br>
                     <label>Description</label>
                     <input name="text" type="text" value={this.state.text} onChange={e => this.setState({ text: e.target.value })} />
-                    <button type="submit">Upload</button>
+                    <button onClick={async e => await this.submit(e)}>Upload</button>
                 </form>
         );
     }

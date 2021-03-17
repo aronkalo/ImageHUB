@@ -37,12 +37,6 @@ namespace ImageHub.Controllers
             byte[] buffer = new byte[stream.Length];
             int pos = await stream.ReadAsync(buffer, 0, (int)stream.Length);
 
-            //var userName = User.Identity.Name;
-            //var user = _context.Users.FirstOrDefault(x => x.UserName == userName);
-
-            //if (user is default(ApplicationUser))
-            //    return Problem();
-
             var media = new Media(Guid.NewGuid().ToString(), buffer, uploadFile.text, null, uploadFile.file.ContentType, 0);
             _context.Medias.Add(media);
             await _context.SaveChangesAsync();

@@ -49,7 +49,7 @@ export class FetchData extends Component {
     }
     static renderImage(forecast) {
         return (
-            <img className="postImage" src={"https://localhost:44335/services/files/" + forecast.identifier}></img>
+            <img className="postImage" src={"https://localhost:5001/services/files/" + forecast.identifier}></img>
         )
     }
 
