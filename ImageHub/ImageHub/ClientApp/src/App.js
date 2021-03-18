@@ -9,18 +9,20 @@ import ApiAuthorizationRoutes from './components/api-authorization/ApiAuthorizat
 import { ApplicationPaths } from './components/api-authorization/ApiAuthorizationConstants';
 
 import './custom.css'
+import { PersonalFeed } from './components/PersonalFeed';
 
 export default class App extends Component {
-  static displayName = App.name;
+    static displayName = App.name;
 
-  render () {
-    return (
-      <Layout>
-        <Route exact path='/' component={Home} />
-        <AuthorizeRoute path='/upload' component={MediaUploader} />
-        <AuthorizeRoute path='/feed' component={FetchData} />
-        <Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes} />
-      </Layout>
-    );
-  }
+    render() {
+        return (
+            <Layout>
+                <Route exact path='/' component={Home} />
+                <AuthorizeRoute path='/upload' component={MediaUploader} />
+                <AuthorizeRoute path='/feed' component={FetchData} />
+                <AuthorizeRoute path='/personalFeed' component={PersonalFeed} />
+                <Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes} />
+            </Layout>
+        );
+    }
 }
