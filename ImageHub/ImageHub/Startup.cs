@@ -44,6 +44,12 @@ namespace ImageHub
             services.AddControllersWithViews();
             services.AddRazorPages();
 
+            services.AddAuthentication().AddFacebook(facebookOptions =>
+            {
+                facebookOptions.AppId = "1124719327994470";
+                facebookOptions.AppSecret = "6331d65d0d9b03691bf432895620df65";
+            });
+
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
