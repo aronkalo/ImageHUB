@@ -1,5 +1,6 @@
 ﻿using ImageHub.Data;
 using ImageHub.Models;
+using ImageHub.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,40 +17,72 @@ namespace ImageHub.Controllers
     public class MediasController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        public MediasController(ApplicationDbContext context)
+        private readonly AccountService _accountService;
+
+        public MediasController(ApplicationDbContext context, AccountService accountService)
         {
             _context = context;
+            _accountService = accountService;
         }
 
         [HttpGet]
         public JsonResult GetMedias()
         {
-            return new JsonResult(_context.Medias.Select(media => MediaDto.FromModel(media)));
+            string username = HttpContext?.User?.Identity?.Name;
+
+            if (username is default(string))
+                throw new ArgumentNullException("user");
+
+            return new JsonResult(_context.Medias
+                .AsEnumerable()
+                .OrderByDescending(med => med.Date)
+                .Select(media => 
+                {
+                    var mediaDto = MediaDto.FromModel(media);
+                    mediaDto.LikedByMe = _accountService.LikedByUser(media, username);
+                    mediaDto.Comments = GetComments(media);
+                    mediaDto.UserName = _accountService.TryGetUsernameByIdentifier(media.UserIdentifier, out var userName) ? userName : String.Empty;
+                    mediaDto.NumberOfLikes = _context.Likes.Count(lik => lik.MediaIdentifier == media.Identifier);
+                    return mediaDto;
+                }));
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadMedia([FromForm]IFormFile file, [FromForm]string text)
+        public async Task<IActionResult> UploadMedia([FromForm]UploadFileDto uploadFile)
         {
-            if (file is null || file.Length < 5)
+            if (uploadFile.file is null || uploadFile.file.Length < 5)
                 return Problem();
 
-            using var stream = file.OpenReadStream();
+            string username = HttpContext?.User?.Identity?.Name;
+
+            if (username is default(string))
+                throw new ArgumentNullException("user");
+
+            if (!_accountService.TryGetIdentifierByUsername(username, out var userId))
+                throw new ArgumentException(nameof(username));
+
+            using var stream = uploadFile.file.OpenReadStream();
             byte[] buffer = new byte[stream.Length];
             int pos = await stream.ReadAsync(buffer, 0, (int)stream.Length);
 
-            if (pos is not 0)
-                return Problem();
-
-            var userName = User.Identity.Name;
-            var user = _context.Users.FirstOrDefault(x => x.UserName == userName);
-
-            if (user is default(ApplicationUser))
-                return Problem();
-
-            var media = new Media(Guid.NewGuid().ToString(), buffer, text, user.Id, file.ContentType, 0);
-            _context.Medias.Add(media);
+            _context.Medias.Add(new Media(Guid.NewGuid().ToString(), buffer, uploadFile.text, userId, uploadFile.file.ContentType, DateTime.Now));
             await _context.SaveChangesAsync();
             return Ok();
+        }
+
+        private CommentDto[] GetComments(Media media)
+        {
+            if (media is null)
+                throw new ArgumentNullException(nameof(media));
+
+            return _context.Comments
+                .Where(com => com.MediaIdentifier == media.Identifier)
+                .AsEnumerable()
+                .Select(com => new CommentDto() {
+                    Date = com.Date,
+                    Text = com.Text,
+                    UserName = _accountService.TryGetUsernameByIdentifier(com.UserIdentifier, out string username) ? username : null })
+                .ToArray();
         }
     }
 }

@@ -1,5 +1,6 @@
 using ImageHub.Data;
 using ImageHub.Models;
+using ImageHub.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Linq;
 
 namespace ImageHub
 {
@@ -36,10 +38,19 @@ namespace ImageHub
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddIdentityServer()
-                .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+                              .AddApiAuthorization<ApplicationUser, ApplicationDbContext>(options =>
+                               {
+                                   options.IdentityResources["openid"].UserClaims.Add("name");
+                                   options.ApiResources.Single().UserClaims.Add("name");
+                               });
 
             services.AddAuthentication()
-                .AddIdentityServerJwt();
+                .AddIdentityServerJwt()
+                .AddFacebook(facebookOptions =>
+                {
+                    facebookOptions.AppId = "1124719327994470";
+                    facebookOptions.AppSecret = "6331d65d0d9b03691bf432895620df65";
+                });
 
             services.AddControllersWithViews();
             services.AddRazorPages();
@@ -49,6 +60,8 @@ namespace ImageHub
             {
                 configuration.RootPath = "ClientApp/build";
             });
+
+            services.AddScoped(typeof(AccountService));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

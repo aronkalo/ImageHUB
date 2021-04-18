@@ -1,0 +1,105 @@
+﻿
+.card {
+    background-color: #fff;
+    width: 600px;
+    border: 1px solid rgb(230, 230, 230);
+}
+
+.commentInput {
+    display: flex;
+    align-items: center;
+}
+
+.commentSendButton {
+    color: blue;
+    height: 30px;
+    border: none;
+    background-color: white;
+}
+
+textarea {
+    resize: none;
+    border: none;
+    margin: 16px;
+    width: calc(100% - 100px);
+    height: 30px;
+}
+
+.postImage {
+    padding-left: 20px;
+    padding-right: 20px;
+    width: 100%;
+    height: 100%;
+}
+
+.username {
+    padding: 16px;
+    font-weight: 700;
+    color: #262626;
+    display: flex;
+    align-items: center;
+}
+
+    .username img {
+        width: 48px;
+        height: 48px;
+    }
+
+    .username p {
+        margin-top: 12px;
+    }
+
+p {
+    padding-left: 12px;
+}
+
+.status {
+    border-bottom: 1px solid #f2f2f2;
+    padding: 16px;
+}
+
+b {
+    color: #262626;
+}
+
+.imgrow::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+.like {
+    padding: 0px 42px 6px 0px;
+    width: 24px;
+    float: left;
+}
+
+    .like img {
+        width: 30px;
+        height: 30px;
+        border-radius: 30px;
+    }
+
+    .like button {
+        border: none;
+        background-color: white;
+    }
+
+.comments {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    color: #999;
+}
+
+.user-comment-name {
+    color: #003569;
+}
+
+.user-comment {
+    padding-left: 6px;
+}
+
+.space-between-posts {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}

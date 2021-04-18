@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ImageHub.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("services/[controller]")]
     public class FilesController : Controller

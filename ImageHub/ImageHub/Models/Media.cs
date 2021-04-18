@@ -8,14 +8,14 @@ namespace ImageHub.Models
 {
     public class Media
     {
-        public Media(string identifier, byte[] data, string text, string userIdentifier, string contentType, int numberOfLikes)
+        public Media(string identifier, byte[] data, string text, string userIdentifier, string contentType, DateTime date)
         {
             Identifier = identifier;
             Data = data;
             Text = text;
             UserIdentifier = userIdentifier;
             ContentType = contentType;
-            NumberOfLikes = numberOfLikes;
+            Date = date;
         }
 
         [Key]
@@ -29,6 +29,6 @@ namespace ImageHub.Models
 
         public string ContentType { get; set; }
 
-        public int NumberOfLikes { get; set; }
+        public DateTime Date { get; set; }
     }
 }

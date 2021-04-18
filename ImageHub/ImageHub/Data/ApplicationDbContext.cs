@@ -18,5 +18,9 @@ namespace ImageHub.Data
         {
         }
         public DbSet<Media> Medias { get; set; }
+
+        public DbSet<Like> Likes { get; set; }
+
+        public DbSet<Comment> Comments { get; set; }
     }
 }

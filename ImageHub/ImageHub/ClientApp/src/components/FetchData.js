@@ -1,63 +1,143 @@
+import { get } from 'jquery';
 import React, { Component } from 'react';
 import authService from './api-authorization/AuthorizeService'
+import './FeedCard.css';
+import like from './images/like.png'
+import comment from './images/comment.png'
+import testprofileimage from './images/tesztprofile.png'
 
 export class FetchData extends Component {
-  static displayName = FetchData.name;
+    static displayName = FetchData.name;
 
-  constructor(props) {
-    super(props);
-    this.state = { forecasts: [], loading: true };
-  }
+    constructor(props) {
+        super(props);
+        this.state = { medias: [], loading: true, commentText: '' };
+    }
 
-  componentDidMount() {
-    this.populateWeatherData();
-  }
+    async populateMedias() {
+        const token = await authService.getAccessToken();
+        const response = await fetch('services/medias/', {
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        this.setState({ medias: data, loading: false });
+    }
 
-  static renderForecastsTable(forecasts) {
-    return (
-      <table className='table table-striped' aria-labelledby="tabelLabel">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Temp. (C)</th>
-            <th>Temp. (F)</th>
-            <th>Summary</th>
-          </tr>
-        </thead>
-        <tbody>
-          {forecasts.map(forecast =>
-            <tr key={forecast.date}>
-              <td>{forecast.date}</td>
-              <td>{forecast.temperatureC}</td>
-              <td>{forecast.temperatureF}</td>
-              <td>{forecast.summary}</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    );
-  }
+    async likeMedia (media){
+        const token = await authService.getAccessToken();
+        const response = await fetch('services/medias/likes/' + media.identifier, {
+            method: 'POST',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        });
+        const status = await response.status;
+        await this.populateMedias();
+    }
 
-  render() {
-    let contents = this.state.loading
-      ? <p><em>Loading...</em></p>
-      : FetchData.renderForecastsTable(this.state.forecasts);
+    async commentMedia (media) {
+        const comment = this.state.commentText;
+        if (comment == null)
+            return;
 
-    return (
-      <div>
-        <h1 id="tabelLabel" >Weather forecast</h1>
-        <p>This component demonstrates fetching data from the server.</p>
-        {contents}
-      </div>
-    );
-  }
+        const token = await authService.getAccessToken();
+        const response = await fetch('services/medias/comments/' + media.identifier + '?commentText=' + comment, {
+            method: 'POST',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        });
+        const status = await response.status;
+        await this.populateMedias();
+    }
 
-  async populateWeatherData() {
-    const token = await authService.getAccessToken();
-    const response = await fetch('weatherforecast', {
-      headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-    });
-    const data = await response.json();
-    this.setState({ forecasts: data, loading: false });
-  }
+    componentDidMount() {
+        this.populateMedias();
+    }
+
+    renderMediaTable(media) {
+        return (
+            <div>
+                {media.map(media => this.renderCard(media))}
+            </div>
+        );
+    }
+
+    renderCard(media) {
+        return (
+            <><div className="card">
+                {this.renderUsername(media)}
+                {this.renderImage(media)}
+                {this.renderStatus(media)}
+                {this.renderComment(media)}
+            </div>
+                <div className="space-between-posts">
+                </div></>
+        );
+    }
+
+    renderUsername(media) {
+        return (
+            <div className="username">
+                <img src={testprofileimage}></img>
+                <p>{ media.userName }</p>
+            </div>
+        )
+    }
+    renderImage(media) {
+        return (
+            <img className="postImage" src={ window.location.origin + "/services/files/" + media.identifier }></img>
+        )
+    }
+
+    renderStatus(media) {
+        return (
+            <div className="status">
+                <div className="imgrow">
+                    <div className="like">
+                        <button onClick={ e => this.likeMedia(media) }>
+                            <img src={like}></img>
+                        </button>
+                    </div>
+                    <div className="like">
+                        <button>
+                            <img src={comment}></img>
+                        </button>
+                    </div>
+                </div>
+
+                <div><b> { media.userName } </b> { media.text } </div>
+
+                <div className="comments">
+                    <span>Comments count: x</span>
+                </div>
+
+                    Very good picture!
+                <span>
+                    <a className="user-comment-name" href="referencia az instára">PéterInsta</a>
+                </span>
+                <span className="user-comment">
+                </span>
+            </div>
+        )
+    }
+
+    renderComment(media) {
+        return (
+            <div className="commentInput">
+                <textarea onChange={ e => this.setState({ commentText: e.target.value }) } placeholder="Add a comment…"></textarea>
+                <button className="commentSendButton" onClick={ e => this.commentMedia(media)}>Send</button>
+            </div>
+        )
+    }
+
+    render() {
+        let contents = this.state.loading
+            ? <p><em>Loading...</em></p>
+            : this.renderMediaTable(this.state.medias);
+
+        return (
+            <div>
+                <h1 id="tabelLabel" >User media</h1>
+                <p>Best community worldwide.</p>
+                {contents}
+            </div>
+        );
+    }
 }
