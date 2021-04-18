@@ -11,54 +11,87 @@ export class FetchData extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { medias: [], loading: true };
+        this.state = { medias: [], loading: true, commentText: '' };
+    }
+
+    async populateMedias() {
+        const token = await authService.getAccessToken();
+        const response = await fetch('services/medias/', {
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        this.setState({ medias: data, loading: false });
+    }
+
+    async likeMedia (media){
+        const token = await authService.getAccessToken();
+        const response = await fetch('services/medias/likes/' + media.identifier, {
+            method: 'POST',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        });
+        const status = await response.status;
+        await this.populateMedias();
+    }
+
+    async commentMedia (media) {
+        const comment = this.state.commentText;
+        if (comment == null)
+            return;
+
+        const token = await authService.getAccessToken();
+        const response = await fetch('services/medias/comments/' + media.identifier + '?commentText=' + comment, {
+            method: 'POST',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        });
+        const status = await response.status;
+        await this.populateMedias();
     }
 
     componentDidMount() {
         this.populateMedias();
     }
 
-    static rendeMediaTable(forecasts) {
+    renderMediaTable(media) {
         return (
             <div>
-                {forecasts.map(forecast => this.renderCard(forecast))}
+                {media.map(media => this.renderCard(media))}
             </div>
         );
     }
 
-    static renderCard(forecast) {
+    renderCard(media) {
         return (
             <><div className="card">
-                {this.renderUsername()}
-                {this.renderImage(forecast)}
-                {this.renderStatus(forecast)}
-                {this.renderComment()}
+                {this.renderUsername(media)}
+                {this.renderImage(media)}
+                {this.renderStatus(media)}
+                {this.renderComment(media)}
             </div>
                 <div className="space-between-posts">
                 </div></>
         );
     }
 
-    static renderUsername() {
+    renderUsername(media) {
         return (
             <div className="username">
                 <img src={testprofileimage}></img>
-                <p>User neve</p>
+                <p>{ media.userName }</p>
             </div>
         )
     }
-    static renderImage(forecast) {
+    renderImage(media) {
         return (
-            <img className="postImage" src={"https://localhost:44335/services/files/" + forecast.identifier}></img>
+            <img className="postImage" src={ window.location.origin + "/services/files/" + media.identifier }></img>
         )
     }
 
-    static renderStatus(forecast) {
+    renderStatus(media) {
         return (
             <div className="status">
                 <div className="imgrow">
                     <div className="like">
-                        <button>
+                        <button onClick={ e => this.likeMedia(media) }>
                             <img src={like}></img>
                         </button>
                     </div>
@@ -69,27 +102,27 @@ export class FetchData extends Component {
                     </div>
                 </div>
 
-                <div><b>Kispista</b> { forecast.text } </div>
+                <div><b> { media.userName } </b> { media.text } </div>
 
                 <div className="comments">
                     <span>Comments count: x</span>
                 </div>
 
+                    Very good picture!
                 <span>
                     <a className="user-comment-name" href="referencia az instára">PéterInsta</a>
                 </span>
                 <span className="user-comment">
-                    Very good picture!
                 </span>
             </div>
         )
     }
 
-    static renderComment() {
+    renderComment(media) {
         return (
             <div className="commentInput">
-                <textarea placeholder="Add a comment…"></textarea>
-                <button className="commentSendButton">Send</button>
+                <textarea onChange={ e => this.setState({ commentText: e.target.value }) } placeholder="Add a comment…"></textarea>
+                <button className="commentSendButton" onClick={ e => this.commentMedia(media)}>Send</button>
             </div>
         )
     }
@@ -97,7 +130,7 @@ export class FetchData extends Component {
     render() {
         let contents = this.state.loading
             ? <p><em>Loading...</em></p>
-            : FetchData.rendeMediaTable(this.state.medias);
+            : this.renderMediaTable(this.state.medias);
 
         return (
             <div>
@@ -106,14 +139,5 @@ export class FetchData extends Component {
                 {contents}
             </div>
         );
-    }
-
-    async populateMedias() {
-        const token = await authService.getAccessToken();
-        const response = await fetch('services/medias/', {
-            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
-        this.setState({ medias: data, loading: false });
     }
 }

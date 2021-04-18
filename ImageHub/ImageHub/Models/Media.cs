@@ -8,13 +8,14 @@ namespace ImageHub.Models
 {
     public class Media
     {
-        public Media(string identifier, byte[] data, string text, string userIdentifier, string contentType)
+        public Media(string identifier, byte[] data, string text, string userIdentifier, string contentType, DateTime date)
         {
             Identifier = identifier;
             Data = data;
             Text = text;
             UserIdentifier = userIdentifier;
             ContentType = contentType;
+            Date = date;
         }
 
         [Key]
@@ -27,5 +28,7 @@ namespace ImageHub.Models
         public string UserIdentifier { get; set; }
 
         public string ContentType { get; set; }
+
+        public DateTime Date { get; set; }
     }
 }

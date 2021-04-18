@@ -7,7 +7,7 @@ namespace ImageHub.Models
 {
     public class MediaDto
     {
-        public static MediaDto FromModel(Media media) => new MediaDto(media.Identifier, media.Text, media.UserIdentifier, media.ContentType);
+        public static MediaDto FromModel(Media media) => new MediaDto(media.Identifier, media.Text, media.ContentType);
       
         private MediaDto(string identifier, string text, string contentType, string userName = null, int likes = 0)
         {

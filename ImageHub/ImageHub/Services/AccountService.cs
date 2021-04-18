@@ -39,5 +39,21 @@ namespace ImageHub.Services
             identifier = _context.Users.FirstOrDefault(us => us.UserName == username)?.Id;
             return identifier is not default(string);
         }
+
+        public bool LikedByUser(Media media, string userName)
+        {
+            if (media is null)
+                throw new ArgumentNullException(nameof(media));
+
+            if (userName is null)
+                throw new ArgumentNullException(nameof(userName));
+
+            if (!TryGetIdentifierByUsername(userName, out var userId))
+                throw new ArgumentException();
+
+            var like = _context.Likes
+                .FirstOrDefault(li => li.MediaIdentifier == media.Identifier && li.UserIdentifier == userId);
+            return like is not default(Like);
+        }
     }
 }
