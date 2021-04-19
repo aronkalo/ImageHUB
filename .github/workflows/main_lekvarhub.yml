@@ -22,10 +22,10 @@ jobs:
         dotnet-version: '5.0.x'
 
     - name: Build with dotnet
-      run: dotnet build --configuration Release --project ./ImageHub/ImageHub/Imagehub.csproj
+      run: dotnet build ./ImageHub/ImageHub/Imagehub.csproj --configuration Release 
 
     - name: dotnet publish
-      run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/lekvarhub --project ./ImageHub/ImageHub/Imagehub.csproj
+      run: dotnet publish ./ImageHub/ImageHub/Imagehub.csproj -c Release -o ${{env.DOTNET_ROOT}}/lekvarhub
 
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v2
