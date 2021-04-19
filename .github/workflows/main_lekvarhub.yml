@@ -3,12 +3,15 @@
 
 name: Build and deploy ASP.Net Core app to Azure Web App - lekvarhub
 
+env: 
+  CI: false
+
 on:
   push:
     branches:
       - main
   workflow_dispatch:
-
+  
 jobs:
   build:
     runs-on: windows-latest
