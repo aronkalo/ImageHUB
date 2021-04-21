@@ -19,10 +19,10 @@ namespace ImageHub.Controllers
         private readonly ApplicationDbContext _context;
         private readonly AccountService _accountService;
 
-        public LikesController(ApplicationDbContext context, AccountService accountService)
+        public LikesController(AccountService accountService, ApplicationDbContext context)
         {
-            _context = context;
             _accountService = accountService;
+            _context = context;
         }
 
         [HttpPost("{id}")]

@@ -10,6 +10,11 @@ namespace ImageHub.Services
     public class AccountService
     {
         private readonly ApplicationDbContext _context;
+        
+        public ApplicationDbContext Context
+        {
+            get => _context;
+        }
 
         public AccountService(ApplicationDbContext context)
         {
