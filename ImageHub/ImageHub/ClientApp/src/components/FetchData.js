@@ -94,26 +94,24 @@ export class FetchData extends Component {
                         <button onClick={ e => this.likeMedia(media) }>
                             <img src={like}></img>
                         </button>
+                        
                     </div>
                     <div className="like">
-                        <button>
-                            <img src={comment}></img>
-                        </button>
+                        <h5><strong>{media.numberOfLikes}</strong></h5>
                     </div>
                 </div>
 
-                <div><b> { media.userName } </b> { media.text } </div>
+                <div><h5> { media.userName }<br/> <b>{ media.text }</b> </h5></div>
 
                 <div className="comments">
-                    <span>Comments count: x</span>
+                    <ul>
+                        {
+                            media.comments.map(x => {
+                                return <li><h5><strong>{x.text}</strong> - {x.userName}</h5></li>
+                            })
+                        }
+                    </ul>
                 </div>
-
-                    Very good picture!
-                <span>
-                    <a className="user-comment-name" href="referencia az instára">PéterInsta</a>
-                </span>
-                <span className="user-comment">
-                </span>
             </div>
         )
     }
@@ -121,7 +119,7 @@ export class FetchData extends Component {
     renderComment(media) {
         return (
             <div className="commentInput">
-                <textarea onChange={ e => this.setState({ commentText: e.target.value }) } placeholder="Add a comment…"></textarea>
+                <textarea onChange={ e => this.setState({ commentText: e.target.value }) } placeholder="Add a commentï¿½"></textarea>
                 <button className="commentSendButton" onClick={ e => this.commentMedia(media)}>Send</button>
             </div>
         )
