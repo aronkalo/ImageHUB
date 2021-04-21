@@ -19,10 +19,10 @@ namespace ImageHub.Controllers
         private readonly ApplicationDbContext _context;
         private readonly AccountService _accountService;
 
-        public MediasController(ApplicationDbContext context, AccountService accountService)
+        public MediasController(AccountService accountService, ApplicationDbContext context)
         {
-            _context = context;
             _accountService = accountService;
+            _context = context;
         }
 
         [HttpGet]
@@ -44,7 +44,7 @@ namespace ImageHub.Controllers
                     mediaDto.UserName = _accountService.TryGetUsernameByIdentifier(media.UserIdentifier, out var userName) ? userName : String.Empty;
                     mediaDto.NumberOfLikes = _context.Likes.Count(lik => lik.MediaIdentifier == media.Identifier);
                     return mediaDto;
-                }));
+                }).ToArray());
         }
 
         [HttpPost]
