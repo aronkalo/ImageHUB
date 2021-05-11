@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 
 namespace ImageHub
 {
@@ -62,6 +63,7 @@ namespace ImageHub
             });
 
             services.AddScoped(typeof(AccountService));
+            services.AddScoped<ComputerVisionClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

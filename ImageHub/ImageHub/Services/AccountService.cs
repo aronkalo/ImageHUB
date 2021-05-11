@@ -38,6 +38,11 @@ namespace ImageHub.Services
             username = _context.Users.FirstOrDefault(us => us.Id == identifier)?.UserName;
             return username is not default(string);
         }
+        
+        public string GetUsernameByIdentifier(string identifier)
+        {
+            return _context.Users.FirstOrDefault(us => us.Id == identifier)?.UserName;
+        }
 
         public bool TryGetIdentifierByUsername(string username, out string identifier)
         {

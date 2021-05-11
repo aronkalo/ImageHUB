@@ -46,6 +46,58 @@ namespace ImageHub.Controllers
                     return mediaDto;
                 }).ToArray());
         }
+        
+        [HttpGet]
+        [Route("friends/{friends}")]
+        public JsonResult GetMedias(string friends)
+        {
+            string username = HttpContext?.User?.Identity?.Name;
+
+            if (username is default(string))
+                throw new ArgumentNullException("user");
+            var friendsArray = friends.Split("__");
+            return new JsonResult(_context.Medias
+                .Where(m => friendsArray.Contains(m.UserIdentifier))
+                .AsEnumerable()
+                .OrderByDescending(med => med.Date)
+                .Select(media => 
+                {
+                    var mediaDto = MediaDto.FromModel(media);
+                    mediaDto.LikedByMe = _accountService.LikedByUser(media, username);
+                    mediaDto.Comments = GetComments(media);
+                    mediaDto.UserName = _accountService.TryGetUsernameByIdentifier(media.UserIdentifier, out var userName) ? userName : String.Empty;
+                    mediaDto.NumberOfLikes = _context.Likes.Count(lik => lik.MediaIdentifier == media.Identifier);
+                    return mediaDto;
+                }).ToArray());
+        }
+
+        [HttpGet]
+        [Route("self")]
+        public JsonResult GetSelfPage()
+        {
+            string username = HttpContext?.User?.Identity?.Name;
+
+            if (username is default(string))
+                throw new ArgumentNullException("user");
+            
+            if(!_accountService.TryGetIdentifierByUsername(username, out var identifier))
+                throw new ArgumentNullException("identifier");
+            
+            return new JsonResult(_context.Medias
+                .AsEnumerable()
+                .OrderByDescending(med => med.Date)
+                .Where(m => m.UserIdentifier == identifier)
+                .Select(media => 
+                {
+                    var mediaDto = MediaDto.FromModel(media);
+                    mediaDto.LikedByMe = _accountService.LikedByUser(media, username);
+                    mediaDto.Comments = GetComments(media);
+                    mediaDto.UserName = _accountService.TryGetUsernameByIdentifier(media.UserIdentifier, out var userName) ? userName : String.Empty;
+                    mediaDto.NumberOfLikes = _context.Likes.Count(lik => lik.MediaIdentifier == media.Identifier);
+                    return mediaDto;
+                }).ToArray());
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> UploadMedia([FromForm]UploadFileDto uploadFile)

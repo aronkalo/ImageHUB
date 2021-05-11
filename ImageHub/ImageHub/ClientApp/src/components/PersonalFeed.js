@@ -1,187 +1,145 @@
 ﻿import React, { Component, useEffect, useRef } from 'react';
 import authService from './api-authorization/AuthorizeService'
 import './PersonalFeed.css';
-import setting_img from './images/settings.png'
-import comment_img from './images/white-comment.png'
-import like_img from './images/white-like.png'
-import { Link } from 'react-router-dom';
-import { ApplicationPaths } from './api-authorization/ApiAuthorizationConstants';
-import { NavLink } from 'reactstrap';
-import { useState } from 'react'
-import { data } from 'jquery';
-
-function Pictures(props) {
-    const [buttonPopup, setButtonPopup] = useState(false)
-    const [popupData, setPopupData] = useState()
-    let popupRef = useRef();
-
-    useEffect(() => {
-        document.addEventListener("mousedown", (event) => {
-            if (popupRef.current && !popupRef.current.contains(event.target)) {
-                setButtonPopup(false);
-            }
-        });
-    });
-
-    function Popup(props) {
-        return (props.trigger) ? (
-            <div class="popup">
-                <div class="popup-inner" ref={popupRef}>
-                    <img src={"https://localhost:44335/services/files/" + props.data.identifier} class="gallery-image" alt=""></img>
-                </div>
-            </div>
-        ) : null;
-    };
-
-    function OnOrTwoPicture(props) {
-        if (props.count == 1) {
-            return (
-                <div class="gallery-item" tabindex="0"></div>
-            );
-        }
-        else if (props.count == 2) {
-            return (
-                <>
-                    <div class="gallery-item" tabindex="0"></div>
-                    <div class="gallery-item" tabindex="0"></div>
-                </>
-            );
-        }
-        else
-            return null
-    }
-
-    return (
-        <>
-            {
-                props.datas.map((data) =>
-                    <div class="gallery-item" tabindex="0" onClick={() => { setButtonPopup(true); setPopupData(data); }}>
-                        <img src={"https://localhost:44335/services/files/" + data.identifier} class="gallery-image" alt=""></img>
-                        <div class="gallery-item-type">
-                            <img></img>
-                        </div>
-                        <div class="gallery-item-info">
-                            <ul>
-                                <li class="gallery-item-likes"><img class="like-img" src={like_img}></img> 30</li>
-                                <li class="gallery-item-comments"><img class="comment-img" src={comment_img}></img> 2</li>
-                            </ul>
-                        </div>
-                    </div>
-                )
-            }
-            <OnOrTwoPicture count={props.datas.postcount}></OnOrTwoPicture>
-            <div>
-                <Popup trigger={buttonPopup} setTrigger={setButtonPopup} data={popupData}>
-                </Popup>
-            </div>
-        </>
-    );
-}
+import testprofileimage from "./images/tesztprofile.png";
+import like from "./images/like.png";
 
 export class PersonalFeed extends Component {
     static displayName = PersonalFeed.name;
-    static profilePath = `${ApplicationPaths.Profile}`;
-
 
     constructor(props) {
-        super(props)
-        this.state = { medias: [], loading: true };
+        super(props);
+        this.state = { medias: [], loading: true, commentText: '' };
+    }
+
+    async populateMedias() {
+        const token = await authService.getAccessToken();
+        const response = await fetch('services/medias/self', {
+            method: 'GET',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}`, },
+        });
+        const data = await response.json();
+        console.log(data);
+        this.setState({ medias: data, loading: false });
+    }
+
+    async likeMedia (media){
+        const token = await authService.getAccessToken();
+        const response = await fetch('services/medias/likes/' + media.identifier, {
+            method: 'POST',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        });
+        const status = response.status;
+        await this.populateMedias();
+    }
+
+    async commentMedia (media) {
+        const comment = this.state.commentText;
+        if (comment == null)
+            return;
+
+        const token = await authService.getAccessToken();
+        const response = await fetch('services/medias/comments/' + media.identifier + '?commentText=' + comment, {
+            method: 'POST',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        });
+        const status = await response.status;
+        await this.populateMedias();
     }
 
     componentDidMount() {
-        this.PersonalDatas();
+        this.populateMedias();
     }
 
-    static renderHeader(datas) {
-        return (
-            <header>
-                <div class="container">
-                    <div class="profile">
-                        <div class="profile-image">
-                            <img src="https://images.unsplash.com/photo-1513721032312-6a18a42c8763?w=152&h=152&fit=crop&crop=faces" alt=""></img>
-                        </div>
-                        <div class="profile-user-settings">
-                            <h1 class="profile-user-name">janedoe_</h1>
-                            <button class="btn profile-edit-btn">Edit Profile</button>
-                            <NavLink tag={Link} className="btn profile-settings-btn" to={this.profilePath}>
-                                <img class="profile-settings-img" src={setting_img}></img>
-                            </NavLink>
-                        </div>
-                        <div class="profile-stats">
-                            <ul>
-                                <li><span class="profile-stat-count">{datas.postcount}</span> posts</li>
-                                <li><span class="profile-stat-count">{this.followersCount()}</span> followers</li>
-                                <li><span class="profile-stat-count">{this.followingCount()}</span> following</li>
-                            </ul>
-                        </div>
-                        <div class="profile-bio">
-                            <p><span class="profile-real-name">Jane Doe</span> Lorem ipsum dolor sit, amet consectetur adipisicing elit 📷✈️🏕️</p>
-                        </div>
-                    </div>
-                </div>
-            </header>
-        );
-    }
-
-    static renderMain(datas) {
-        if (datas.postcount == 0) {
-            return (<></>);
-        }
-        else {
-            return (
-                <main>
-                    <div class="container">
-                        <div class="gallery">
-                            <Pictures datas={datas}></Pictures>
-                        </div>
-                        <div class="loader">
-                        </div>
-                    </div>
-                </main>
-            );
-        }
-    }
-
-    static GetFeed(datas) {
-        return (
-            <>
-                {this.renderHeader(datas)}
-                {this.renderMain(datas)}
-            </>
-        );
-    }
-
-    static followersCount() {
-        return 148;
-    }
-
-    static followingCount() {
-        return 190;
-    }
-
-    render() {
-        if (!this.state.loading) {
-            this.state.medias.postcount = this.state.medias.length
-        }
-
-        let contents = this.state.loading
-            ? <p><em>Loading...</em></p>
-            : PersonalFeed.GetFeed(this.state.medias);
-
-
+    renderMediaTable(media) {
         return (
             <div>
-                {contents}
+                {
+                    media.map(media => this.renderCard(media))
+                }
             </div>
         );
     }
 
-    async PersonalDatas() {
-        const token = await authService.getAccessToken();
-        const response = await fetch('services/medias/', {
-            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
-        this.setState({ medias: data, loading: false });
+    renderCard(media) {
+        return (
+            <div>
+                <div className="card">
+                {this.renderUsername(media)}
+                {this.renderImage(media)}
+                {this.renderStatus(media)}
+                {this.renderComment(media)}
+                </div>
+                <div className="space-between-posts">
+                </div>
+            </div>
+        );
+    }
+
+    renderUsername(media) {
+        return (
+            <div className="username">
+                <img src={testprofileimage}></img>
+                <p>{ media.userName }</p>
+            </div>
+        )
+    }
+    renderImage(media) {
+        return (
+            <img className="postImage" src={ window.location.origin + "/services/files/" + media.identifier }></img>
+        )
+    }
+
+    renderStatus(media) {
+        return (
+            <div className="status">
+                <div className="imgrow">
+                    <div className="like">
+                        <button onClick={ e => this.likeMedia(media) }>
+                            <img src={like}></img>
+                        </button>
+
+                    </div>
+                    <div className="like">
+                        <h5><strong>{media.numberOfLikes}</strong></h5>
+                    </div>
+                </div>
+
+                <div><h5> { media.userName }<br/> <b>{ media.text }</b> </h5></div>
+
+                <div className="comments">
+                    <ul>
+                        {
+                            media.comments.map(x => {
+                                return <li><h5><strong>{x.text}</strong> - {x.userName}</h5></li>
+                            })
+                        }
+                    </ul>
+                </div>
+            </div>
+        )
+    }
+
+    renderComment(media) {
+        return (
+            <div className="commentInput">
+                <textarea onChange={ e => this.setState({ commentText: e.target.value }) } placeholder="Add a comment"></textarea>
+                <button className="commentSendButton" onClick={ e => this.commentMedia(media)}>Send</button>
+            </div>
+        )
+    }
+
+    render() {
+        let contents = this.state.loading
+            ? <div className="loader"></div>
+            : this.renderMediaTable(this.state.medias);
+
+        return (
+            <div>
+                <h1 id="tabelLabel" >Personal media</h1>
+                <p>Best community worldwide.</p>
+                {contents}
+            </div>
+        );
     }
 }

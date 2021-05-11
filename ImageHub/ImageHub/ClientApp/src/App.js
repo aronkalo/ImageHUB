@@ -10,6 +10,8 @@ import { ApplicationPaths } from './components/api-authorization/ApiAuthorizatio
 
 import './custom.css'
 import { PersonalFeed } from './components/PersonalFeed';
+import {FriendFeed} from "./components/FriendFeed";
+import {Users} from "./components/Users";
 
 export default class App extends Component {
     static displayName = App.name;
@@ -21,6 +23,8 @@ export default class App extends Component {
                 <AuthorizeRoute path='/upload' component={MediaUploader} />
                 <AuthorizeRoute path='/feed' component={FetchData} />
                 <AuthorizeRoute path='/personalFeed' component={PersonalFeed} />
+                <AuthorizeRoute path='/friendFeed' component={FriendFeed} />
+                <AuthorizeRoute path='/users' component={Users} />
                 <Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes} />
             </Layout>
         );

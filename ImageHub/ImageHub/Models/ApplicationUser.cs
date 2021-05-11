@@ -8,5 +8,6 @@ namespace ImageHub.Models
 {
     public class ApplicationUser : IdentityUser
     {
+        
     }
 }

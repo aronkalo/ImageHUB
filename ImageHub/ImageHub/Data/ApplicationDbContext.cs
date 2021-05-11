@@ -22,5 +22,7 @@ namespace ImageHub.Data
         public DbSet<Like> Likes { get; set; }
 
         public DbSet<Comment> Comments { get; set; }
+        
+        public DbSet<FriendConnection> FriendConnections { get; set; }
     }
 }

@@ -10,7 +10,8 @@ export class MediaUploader extends Component {
         super(props);
         this.state = {
             file: '',
-            text: ''
+            text: '',
+            isLoading: false
         };
     }
 
@@ -19,6 +20,7 @@ export class MediaUploader extends Component {
     }
 
     submit = async (e) => {
+        this.state.isLoading = true;
         const url = 'services/medias';
         const token = await authService.getAccessToken();
         const config = {
@@ -29,18 +31,30 @@ export class MediaUploader extends Component {
             body: new FormData(document.getElementById('form')),
         };
         return await fetch(url, config)
-            .catch(e => console.error(e));
+            .then(() => {
+                this.state.isLoading = false;
+            })
+            .catch(e => {
+                console.error(e);
+                this.state.isLoading = false;
+            });
     }
 
     render() {
-        return (
-                <form id='form'>
-                    <label>Media</label><br></br>
-                    <input name="file" type="file" onChange={e => this.setState({ file: e.target.files[0] })} /><br></br>
+            if(this.state.isLoading) {
+                return (
+                    <div className="loader"></div>
+                );
+            }
+            else{
+                return (<form id='form'>
+                    <label>Media</label><br/>
+                    <input name="file" type="file" onChange={e => this.setState({file: e.target.files[0]})}/><br></br>
                     <label>Description</label>
-                    <input name="text" type="text" value={this.state.text} onChange={e => this.setState({ text: e.target.value })} />
+                    <input name="text" type="text" value={this.state.text}
+                           onChange={e => this.setState({text: e.target.value})}/>
                     <button onClick={async e => await this.submit(e)}>Upload</button>
-                </form>
-        );
+                </form>); 
+            }
     }
 }
