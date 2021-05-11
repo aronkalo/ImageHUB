@@ -1,13 +1,11 @@
-import { get } from 'jquery';
 import React, { Component } from 'react';
 import authService from './api-authorization/AuthorizeService'
 import './FeedCard.css';
 import like from './images/like.png'
-import comment from './images/comment.png'
 import testprofileimage from './images/tesztprofile.png'
 
-export class FetchData extends Component {
-    static displayName = FetchData.name;
+export class FriendFeed extends Component {
+    static displayName = FriendFeed.name;
 
     constructor(props) {
         super(props);
@@ -16,10 +14,21 @@ export class FetchData extends Component {
 
     async populateMedias() {
         const token = await authService.getAccessToken();
-        const response = await fetch('services/medias/', {
+        const friends = await fetch('services/users/friends', {
+            method: 'GET',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         });
+        const friendArray = await friends.json();
+        let friendsConcat = '';
+        friendArray.map(f => {
+           friendsConcat += (f.id + '__'); 
+        });
+        const response = await fetch('services/medias/friends/' + friendsConcat, {
+            method: 'GET',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}`, 'Content-Type' : 'application/json' },
+        });
         const data = await response.json();
+        console.log(data);
         this.setState({ medias: data, loading: false });
     }
 
@@ -29,7 +38,7 @@ export class FetchData extends Component {
             method: 'POST',
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         });
-        const status = await response.status;
+        const status = response.status;
         await this.populateMedias();
     }
 
@@ -119,7 +128,7 @@ export class FetchData extends Component {
     renderComment(media) {
         return (
             <div className="commentInput">
-                <textarea onChange={ e => this.setState({ commentText: e.target.value }) } placeholder="Add a comment�"></textarea>
+                <textarea onChange={ e => this.setState({ commentText: e.target.value }) } placeholder="Add a comment"></textarea>
                 <button className="commentSendButton" onClick={ e => this.commentMedia(media)}>Send</button>
             </div>
         )
@@ -132,7 +141,7 @@ export class FetchData extends Component {
 
         return (
             <div>
-                <h1 id="tabelLabel" >User media</h1>
+                <h1 id="tabelLabel" >Friends media</h1>
                 <p>Best community worldwide.</p>
                 {contents}
             </div>
