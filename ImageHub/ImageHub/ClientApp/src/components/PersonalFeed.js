@@ -9,7 +9,7 @@ export class PersonalFeed extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { medias: [], loading: true, commentText: '' };
+        this.state = { medias: [], loading: true, commentText: '', friendNumber: 0 };
     }
 
     async populateMedias() {
@@ -19,8 +19,12 @@ export class PersonalFeed extends Component {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}`, },
         });
         const data = await response.json();
-        console.log(data);
-        this.setState({ medias: data, loading: false });
+        const friendResponse = await fetch('services/users/friends', {
+            method: 'GET',
+            headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+        });
+        const friends = await friendResponse.json();
+        this.setState({ medias: data, loading: false, friendNumber: friends.length  });
     }
 
     async likeMedia (media){
@@ -135,9 +139,22 @@ export class PersonalFeed extends Component {
             : this.renderMediaTable(this.state.medias);
 
         return (
-            <div>
-                <h1 id="tabelLabel" >Personal media</h1>
-                <p>Best community worldwide.</p>
+            <div style={{color:"indianred", fontWeight: "bolder"}}>
+                <h1 id="tabelLabel" style={{textAlign: "center"}}>Your profile</h1>
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <h3> { this.state.medias && this.state.medias.length > 0 ? 'Username :' + this.state.medias[0]?.userName : 'Upload media first' }</h3>
+                        </div>
+                        <div class="col">
+                            <h3>Friend number: { this.state.friendNumber }</h3>
+                        </div>
+                        <div class="col">
+                            <h3>Media count: { this.state.medias ? this.state.medias.length : 'Loading..' }</h3>
+                        </div>
+                    </div>
+                </div>
+                <br/>
                 {contents}
             </div>
         );

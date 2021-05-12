@@ -20,23 +20,27 @@ export class MediaUploader extends Component {
     }
 
     submit = async (e) => {
-        this.state.isLoading = true;
+        this.setState({isLoading : true});
         const url = 'services/medias';
+        const formData = new FormData();
+        formData.append('file', this.state.file);
+        formData.append('text', this.state.text);
+        console.log(this.state.file);
         const token = await authService.getAccessToken();
         const config = {
             method: 'POST',
             headers: !token ? {} : {
                 'Authorization': `Bearer ${token}`,
             },
-            body: new FormData(document.getElementById('form')),
+            body: formData,
         };
         return await fetch(url, config)
             .then(() => {
-                this.state.isLoading = false;
+                this.setState({isLoading : false });
             })
             .catch(e => {
                 console.error(e);
-                this.state.isLoading = false;
+                this.setState({isLoading : false });
             });
     }
 
@@ -47,14 +51,15 @@ export class MediaUploader extends Component {
                 );
             }
             else{
-                return (<form id='form'>
-                    <label>Media</label><br/>
-                    <input name="file" type="file" onChange={e => this.setState({file: e.target.files[0]})}/><br></br>
-                    <label>Description</label>
-                    <input name="text" type="text" value={this.state.text}
-                           onChange={e => this.setState({text: e.target.value})}/>
-                    <button onClick={async e => await this.submit(e)}>Upload</button>
-                </form>); 
+                return (
+                    <div>
+                        <label>Media</label><br/>
+                        <input name="file" type="file" onChange={e => this.setState({file: e.target.files[0]})}/><br></br>
+                        <label>Description</label>
+                        <input name="text" type="text" value={this.state.text}
+                               onChange={e => this.setState({text: e.target.value})}/>
+                        <button onClick={async e => await this.submit(e)}>Upload</button>
+                    </div>); 
             }
     }
 }
