@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 
 namespace ImageHub.Controllers
 {
@@ -18,6 +20,8 @@ namespace ImageHub.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly AccountService _accountService;
+        private const string KEY = "4407fd3dc01945449c061ea07b9c6cb7";
+        private const string ENDPOINT = "https://lekvarhub-vision.cognitiveservices.azure.com/";
 
         public MediasController(AccountService accountService, ApplicationDbContext context)
         {
@@ -107,18 +111,28 @@ namespace ImageHub.Controllers
 
             string username = HttpContext?.User?.Identity?.Name;
 
+            ComputerVisionClient client = new ComputerVisionClient(new ApiKeyServiceClientCredentials(KEY))
+                {Endpoint = ENDPOINT};
+
+            using Stream stream = uploadFile.file.OpenReadStream();
+            byte[] buffer = new byte[stream.Length];
+            int pos = await stream.ReadAsync(buffer, 0, (int) stream.Length);
+            using MemoryStream ms = new MemoryStream(buffer);
+            var result = await client.TagImageInStreamAsync(ms);
+            string[] invalid = {"penis", "vagina", "sex", "murder", "tits", "boobs", "kill", "drug"};
+            if (result.Tags.Any(t => invalid.Contains(t.Name)))
+                throw new Exception("Sensitive picture uploaded");
+
             if (username is default(string))
                 throw new ArgumentNullException("user");
 
             if (!_accountService.TryGetIdentifierByUsername(username, out var userId))
                 throw new ArgumentException(nameof(username));
 
-            using var stream = uploadFile.file.OpenReadStream();
-            byte[] buffer = new byte[stream.Length];
-            int pos = await stream.ReadAsync(buffer, 0, (int)stream.Length);
-
-            _context.Medias.Add(new Media(Guid.NewGuid().ToString(), buffer, uploadFile.text, userId, uploadFile.file.ContentType, DateTime.Now));
+            _context.Medias.Add(new Media(Guid.NewGuid().ToString(), buffer, uploadFile.text, userId,
+                uploadFile.file.ContentType, DateTime.Now));
             await _context.SaveChangesAsync();
+
             return Ok();
         }
 

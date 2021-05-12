@@ -24,7 +24,7 @@ export class PersonalFeed extends Component {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         });
         const friends = await friendResponse.json();
-        this.setState({ medias: data, loading: false, friendNumber: friends.length  });
+        this.setState({ medias: data, loading: false, friendNumber: friends.filter(f => f.verified === true).length  });
     }
 
     async likeMedia (media){
