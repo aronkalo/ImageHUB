@@ -10,6 +10,8 @@ namespace ImageHub.Models
         public string UserOne { get; set; }
         
         public string UserTwo { get; set; }
+        
+        public bool Verified { get; set; }
 
     }
 }

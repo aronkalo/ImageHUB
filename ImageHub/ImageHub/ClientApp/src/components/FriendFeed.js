@@ -21,7 +21,9 @@ export class FriendFeed extends Component {
         const friendArray = await friends.json();
         let friendsConcat = '';
         friendArray.map(f => {
-           friendsConcat += (f.id + '__'); 
+            if(f.verified === true){
+                friendsConcat += (f.id + '__');
+            }
         });
         const response = await fetch('services/medias/friends/' + friendsConcat, {
             method: 'GET',

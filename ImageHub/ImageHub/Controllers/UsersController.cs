@@ -42,13 +42,13 @@ namespace ImageHub.Controllers
 
             return new JsonResult(_context.FriendConnections
                 .Where(f => f.UserOne == userId || f.UserTwo == userId)
-                .Select(f => f.UserOne == userId ? f.UserTwo : f.UserOne)
-                .Select(u => new{id = u, name = _accountService.GetUsernameByIdentifier(u)})
+                .Select(f => f.UserOne == userId ? new { name = f.UserTwo, verified = f.Verified, other = false} : new {name = f.UserOne, verified = f.Verified, other = true})
+                .Select(u => new{id = u.name, name = _accountService.GetUsernameByIdentifier(u.name), u.verified, u.other})
                 .ToArray());
         }
 
         [HttpPost]
-        public async Task<IActionResult> SwitchFriendStatus([FromQuery] string userId)
+        public async Task<IActionResult> SwitchFriendStatus([FromQuery] string userId, [FromQuery]bool positive)
         {
             string username = HttpContext?.User?.Identity?.Name;
 
@@ -66,8 +66,18 @@ namespace ImageHub.Controllers
             if (connection is default(FriendConnection))
             {
                 var newConnection = new FriendConnection()
-                    {Identifier = Guid.NewGuid().ToString(), UserOne = selfUserId, UserTwo = userId};
+                    {Identifier = Guid.NewGuid().ToString(), UserOne = selfUserId, UserTwo = userId, Verified = false};
                 await _context.FriendConnections.AddAsync(newConnection);
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+
+            if (positive && connection.Verified == false)
+            {
+                var newConn = new FriendConnection()
+                    { Identifier = Guid.NewGuid().ToString(), UserOne = connection.UserOne, UserTwo = connection.UserTwo, Verified = true};
+                _context.FriendConnections.Remove(connection);
+                await _context.FriendConnections.AddAsync(newConn);
                 await _context.SaveChangesAsync();
                 return Ok();
             }
